@@ -1,0 +1,74 @@
+---
+title: "Remembering R hurdles"
+author: "Alex"
+date: "Sunday, August 23, 2015"
+output: html_document
+---
+
+Ifelse() is vectorized, while if() is not.
+
+```{r, eval=FALSE}
+# Example
+# Function aggr() checks variable "type" in provided dataframe "df"
+# to be already in acceptible values vector "events", and otherwise
+# changes variable to fixed string "to" if "pattern" is found in it
+
+library(dplyr)
+aggr<-function(df,pattern,to)
+        dplyr::mutate(df,
+                      type=ifelse(! type %in% events,
+                                  ifelse(grepl(pattern,type,ignore.case=TRUE),
+                                         to,
+                                         type),
+                                  type))
+
+```
+
+Plotting functions pay attention to your data types, so for barchart you
+need to have factors.  
+Don't forget to print the chart object when using from function - otherwise
+it's returned, not printed.
+Use pluses at the end of the line to let the variable know you aren't finished
+
+```{r, eval=FALSE}
+p<-ggplot(data=cities,aes(x=year,y=TotalEmissions,fill=counties))+
+        ggtitle("PM2.5 emissions from vehicles comparison")+
+        p<-p+ylab("PM2.5 emissions, hundred tons")+
+        p<-p+guides(fill=FALSE)+
+        p<-p+geom_bar(position="dodge",stat="identity")
+print(p)
+```
+
+Knitr runs Rmd in the current directory, and Knitr FAQ claims it's a bad style
+to use setwd(). So keep setwd instruction as a comment and run it in the console
+before doing development or debug in console.  
+Also see reference to home directory and using file.path to get proper slashes
+for your system.
+
+```{r, eval=FALSE}
+# setwd(file.path(normalizePath("~"),"folder","subfolder"))
+```
+
+To prevent re-downloads every time when you develop in Rmd with console,
+keep the original dataset in a separate variable and see if it's intact,
+using digest().
+
+```{r, eval=FALSE}
+remote<-"https://something.com/folder/file.csv.zip"
+localzip<-basename(remote)
+if(!file.exists(localzip)) download.file(remote,localzip)
+# No need to unzip - read.csv() does it automatically.
+# Run digest() after loading for the first time to get the checksum.
+if(!exists("loaded") || digest(loaded) != "b223723dffbf2ec857526bcc32d2a31d")
+   loaded <- read.csv(localzip)
+# Keep original data frame for console work caching and make a mutable copy
+working<-loaded
+````
+
+Use gridExtra() library to combine plots.
+```{r, eval=FALSE}  
+library(gridExtra)
+png("file.png",width=700)
+grid.arrange(p1,p1,ncol=2)
+dev.off()
+```
