@@ -13,7 +13,6 @@ Ifelse() is vectorized, while if() is not.
 # to be already in acceptible values vector "events", and otherwise
 # changes variable to fixed string "to" if "pattern" is found in it
 
-library(dplyr)
 aggr<-function(df,pattern,to)
         dplyr::mutate(df,
                       type=ifelse(! type %in% events,
@@ -22,6 +21,13 @@ aggr<-function(df,pattern,to)
                                          type),
                                   type))
 
+```
+
+Single sign logical operators are vectorized, while double sign - not.
+
+```{r, eval=FALSE}
+c(TRUE,FALSE) & c(TRUE,FALSE) # Returns TRUE FALSE
+c(TRUE,FALSE) && c(TRUE,FALSE) # Returns TRUE
 ```
 
 Plotting functions pay attention to your data types, so for barchart you
@@ -71,4 +77,25 @@ library(gridExtra)
 png("file.png",width=700)
 grid.arrange(p1,p1,ncol=2)
 dev.off()
+```
+
+Function to convert first letters of words to uppercase
+```{r, eval=FALSE}
+# Modified function from toupper() help page
+.simpleCapDecap <- function(x) {
+    s <- strsplit(x, " ")[[1]]
+    paste(toupper(substring(s, 1, 1)), tolower(substring(s, 2)),
+          sep = "", collapse = " ")
+}
+```
+
+Ways to print without line numbers and names - use cat, use row.names argument
+for data.frame print function.
+
+```{r}
+cat(c("First line","Second line"),sep="\n")
+m<-matrix(c(1,2,3,4),ncol=2)
+m
+data.frame(m)
+print(data.frame(m), row.names=FALSE)
 ```
