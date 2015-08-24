@@ -5,6 +5,8 @@ date: "Sunday, August 23, 2015"
 output: html_document
 ---
 
+## Vectorized vs not vectorized
+
 Ifelse() is vectorized, while if() is not.
 
 ```{r, eval=FALSE}
@@ -30,6 +32,8 @@ c(TRUE,FALSE) & c(TRUE,FALSE) # Returns TRUE FALSE
 c(TRUE,FALSE) && c(TRUE,FALSE) # Returns TRUE
 ```
 
+## Plotting with ggplot
+
 Plotting functions pay attention to your data types, so for barchart you
 need to have factors.  
 Don't forget to print the chart object when using from function - otherwise
@@ -44,6 +48,39 @@ p<-ggplot(data=cities,aes(x=year,y=TotalEmissions,fill=counties))+
         p<-p+geom_bar(position="dodge",stat="identity")
 print(p)
 ```
+
+Use gridExtra() library to combine plots.
+```{r, eval=FALSE}  
+library(gridExtra)
+png("file.png",width=700)
+grid.arrange(p1,p1,ncol=2)
+dev.off()
+```
+
+## Plotting with lattice
+
+This is how custom axis labels are made.
+```{r, eval=FALSE}
+with(patternw,
+     xyplot(steps/5 ~ as.numeric(interval) | weekpart,
+            layout=1:2,
+            xlab="Hour of the day",
+            ylab="Number of steps per minute",
+            type="l",
+            scales=list(
+                    # Instead of numeric, draw interval as time again,
+                    # but in a simpler way this time - as xyplot()
+                    # has some issues with POSIXlt
+                    x=list(
+                            at=seq(0,2400,200),
+                            labels=as.character(seq(0,24,2))
+                            )
+                    )
+            )
+     )
+```
+
+## Using Knitr
 
 Knitr runs Rmd in the current directory, and Knitr FAQ claims it's a bad style
 to use setwd(). So keep setwd instruction as a comment and run it in the console
@@ -71,13 +108,7 @@ if(!exists("loaded") || digest(loaded) != "b223723dffbf2ec857526bcc32d2a31d")
 working<-loaded
 ````
 
-Use gridExtra() library to combine plots.
-```{r, eval=FALSE}  
-library(gridExtra)
-png("file.png",width=700)
-grid.arrange(p1,p1,ncol=2)
-dev.off()
-```
+# Handling text
 
 Function to convert first letters of words to uppercase
 ```{r, eval=FALSE}
@@ -98,4 +129,58 @@ m<-matrix(c(1,2,3,4),ncol=2)
 m
 data.frame(m)
 print(data.frame(m), row.names=FALSE)
+```
+
+For data types conversion, here's aunction that adds zeroes to numeric records
+like 222 to have 0222 ready for translation to time 02:22
+```{r, eval=FALSE}
+f<-function(i){
+        i.length<-nchar(as.character(i))
+        if(i.length<4){
+                prefix<-paste(rep(0,4-i.length),collapse="")
+                paste0(prefix,i)}
+        else i
+        }
+f(222) # Produces 0222
+```
+
+## Dplyr pipes and tidyr
+
+Dplyr pipes are convenient. If sort function doesn't work, try to ungroup().
+
+```{r, eval=FALSE}
+vehicles<-subset(SCC,grepl("Vehicle",SCC.Level.Two,ignore.case=TRUE))
+places<-c("06037","24510")
+names(places)<-c("Los Angeles","Baltimore")
+cities<-NEI %>%
+        subset(fips %in% places) %>%
+        subset(SCC %in% vehicles$SCC) %>%
+        select(Emissions,year,fips) %>%
+        rename(counties=fips) %>%
+        group_by(year,counties) %>%
+        summarize(TotalEmissions=sum(Emissions)/100)
+#also, not from real code
+# ungroup %>% arrange(desc(TotalEmissions))
+```
+
+Tidyr can be used to convert factors to columns with 0/1 values, to use
+with neural networks. For neural networks types are also important,
+automatic coersion doesn't work here.
+
+```{r, eval=FALSE}
+bins<-data %>% # piped functions follow
+        
+        # make it narrow, don't touch numeric variables and IDs
+        gather(catnames,catvalues,-Dress_ID,-Rating,-Recommendation,-rnumber) %>%
+        
+        # make single column out of them
+        unite(newfactor,catnames,catvalues,sep=".") %>%
+        
+        # add a new column - it's "1" for every record
+        mutate( is = 1) %>%
+        
+        # create a column from each factor, and where there's no record, add "0"
+        spread(newfactor, is, fill = 0)
+# Now let's make it back numeric, except for ID
+bins[]<-lapply(bins,as.numeric)
 ```
