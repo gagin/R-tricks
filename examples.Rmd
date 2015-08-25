@@ -5,6 +5,44 @@ date: "Sunday, August 23, 2015"
 output: html_document
 ---
 
+## Using Knitr
+
+To update existing Rpubs document, delete it and upload a new one to the same
+stub. It's the only way I've found.
+
+Knitr runs Rmd in the current directory, and Knitr FAQ claims it's a bad style
+to use setwd(). So keep setwd instruction as a comment and run it in the console
+before doing development or debug in console.  
+Also see reference to home directory and using file.path to get proper slashes
+for your system.
+
+```{r, eval=FALSE}
+# setwd(file.path(normalizePath("~"),"folder","subfolder"))
+```
+
+To prevent re-downloads every time when you develop in Rmd with console,
+keep the original dataset in a separate variable and see if it's intact,
+using digest().
+
+```{r, eval=FALSE}
+remote<-"https://something.com/folder/file.csv.zip"
+localzip<-basename(remote)
+if(!file.exists(localzip)) download.file(remote,localzip)
+# No need to unzip - read.csv() does it automatically.
+# Run digest() after loading for the first time to get the checksum.
+if(!exists("loaded") || digest(loaded) != "b223723dffbf2ec857526bcc32d2a31d")
+   loaded <- read.csv(localzip)
+# Keep original data frame for console work caching and make a mutable copy
+working<-loaded
+````
+
+## Exploration
+
+Count NAs in each column of a dataframe df
+```{r, eval=FALSE}
+df %>% sapply(function(x){sum(is.na(x))})
+```
+
 ## Vectorized vs not vectorized
 
 Ifelse() is vectorized, while if() is not.
@@ -79,34 +117,6 @@ with(patternw,
             )
      )
 ```
-
-## Using Knitr
-
-Knitr runs Rmd in the current directory, and Knitr FAQ claims it's a bad style
-to use setwd(). So keep setwd instruction as a comment and run it in the console
-before doing development or debug in console.  
-Also see reference to home directory and using file.path to get proper slashes
-for your system.
-
-```{r, eval=FALSE}
-# setwd(file.path(normalizePath("~"),"folder","subfolder"))
-```
-
-To prevent re-downloads every time when you develop in Rmd with console,
-keep the original dataset in a separate variable and see if it's intact,
-using digest().
-
-```{r, eval=FALSE}
-remote<-"https://something.com/folder/file.csv.zip"
-localzip<-basename(remote)
-if(!file.exists(localzip)) download.file(remote,localzip)
-# No need to unzip - read.csv() does it automatically.
-# Run digest() after loading for the first time to get the checksum.
-if(!exists("loaded") || digest(loaded) != "b223723dffbf2ec857526bcc32d2a31d")
-   loaded <- read.csv(localzip)
-# Keep original data frame for console work caching and make a mutable copy
-working<-loaded
-````
 
 # Handling text
 
