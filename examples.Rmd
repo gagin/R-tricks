@@ -173,6 +173,8 @@ cities<-NEI %>%
 # ungroup %>% arrange(desc(TotalEmissions))
 ```
 
+## Neuralnet preparation and call
+
 Tidyr can be used to convert factors to columns with 0/1 values, to use
 with neural networks. For neural networks types are also important,
 automatic coersion doesn't work here.
@@ -193,4 +195,52 @@ bins<-data %>% # piped functions follow
         spread(newfactor, is, fill = 0)
 # Now let's make it back numeric, except for ID
 bins[]<-lapply(bins,as.numeric)
+```
+
+Prepare trainers
+
+```{r}
+nr<-dim(bins)[1] # number of observations
+share<-0.8 # this is our 80% parameter
+set.seed(seed)
+trainset<-sample.int(nr,round(share*nr))
+trainers<-bins[trainset,]
+testers<bins[-trainset,]
+```
+
+Call neuralnet() and compute
+
+```{r, eval=FALSE}
+#make list for neuralnet() call
+cat(paste0(names(bins),sep="+"))
+
+# call
+bins.nn<-function(df,rep=1,hidden=c(1),threshold=0.1) {
+        set.seed(seed)
+        nn.obj<-neuralnet(Target ~ List-from-prev-func,
+                          data=df,
+                          hidden=hidden,
+                          lifesign="full",
+                          lifesign.step=2000,
+                          threshold=threshold,
+                          rep=rep)
+        return(nn.obj)}
+
+n1<-bins.nn(trainers,rep=1,hidden=c(5),threshold=0.02)
+
+nfeat<-dim(bins)[2] 
+res<-neuralnet::compute(n1,testers[,3:nfeat]) # Your columns instead of 3
+qualify(round(res$net.result),testers$Recommendation)
+
+```
+
+Results assessment function
+
+```{r, eval=FALSE}
+qualify<-function(real,guess){
+  check<-table(real,guess)
+  good.ones<-check[1,1]+check[2,2]
+  bad.ones<-check[1,2]+check[2,1]
+  paste0(as.character(round(100*good.ones/(good.ones+bad.ones))),'%')
+  }
 ```
