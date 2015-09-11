@@ -35,6 +35,7 @@ if(!exists("loaded") || digest(loaded) != "b223723dffbf2ec857526bcc32d2a31d")
 # Keep original data frame for console work caching and make a mutable copy
 working<-loaded
 ````
+readr::read_csv() and data.table::fread() are faster, and even more faster, leave column names as original (could be done with check.names=FALSE in read.csv), strings not converted to factors (could be done with stringsAsFactors = FALSE in read.csv). But they have problems with files, downloaded with download.file() on Windows, if mode="wb" wasn't used with it.
 
 ## Exploration
 
