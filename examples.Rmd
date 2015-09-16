@@ -36,11 +36,48 @@ if(!exists("loaded") || digest(loaded) != "b223723dffbf2ec857526bcc32d2a31d")
 working<-loaded
 ````
 
+Remember not to break names when read.csv() by check.names=FALSE
+
 ## Exploration
 
 Count NAs in each column of a dataframe df
+
 ```{r, eval=FALSE}
 df %>% sapply(function(x){sum(is.na(x))})
+```
+
+## Performance and memory
+
+apply() functions don't improve performance compared to for(), they are just
+more readable.
+
+To check object size in memory, use "pryr" package.
+```{r, eval=FALSE}
+large.object<-rep(999,99999)
+library(pryr); object_size(large.object)
+```
+
+Function to display progress. Does 1mln records in 2 seconds with step 1000.
+
+```{r, eval=FALSE}
+progress <- function(add="", reset=FALSE, steps=100, msg="Processing row") {
+# Potentially conflicts with httr::progress
+        if(reset) {
+                progress.counter <<- 0
+                progress.hundreds <<- 0
+        }
+        progress.counter <<- progress.counter + 1
+        if(progress.counter == steps) {
+                progress.hundreds <<- progress.hundreds + 1
+                if(add != "") add <- paste(":",add)
+                cat(paste0(msg,
+                           " ",
+                           progress.hundreds*steps,
+                           add,
+                           "\n"))
+                progress.counter <<- 0
+        }
+}
 ```
 
 ## Vectorized vs not vectorized
