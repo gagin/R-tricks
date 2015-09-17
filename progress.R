@@ -7,18 +7,20 @@ progress <- function(tick.step=100) {
         counter <- 0
         ticks   <- 0
         tick    <- tick.step
-        function(add="", prefix="Processing row") {
-        # default arg is meant to say smth meaningful about the current content        
+        function(prefix="Processing row ") {
+        # The arg is meant to say smth meaningful about the current content        
                 counter <<- counter + 1
                 if(counter == tick) {
                         ticks <<- ticks + 1
-                        if(add != "") add <- paste(":",add)
                         cat(paste0(prefix,
-                                   " ",
-                                   as.character(ticks*tick),
-                                   add,
+                                   prettyNum(ticks*tick,
+                                             big.mark=",",
+                                             big.interval=3,
+                                             scientific=FALSE),
                                    "\n"))
                         counter <<- 0
                 }
         }
 }
+
+# Space or other devider at the end of the prefix is responsibility of the user
