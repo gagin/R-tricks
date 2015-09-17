@@ -2,7 +2,7 @@ progress <-
         function(add="", prefix="Processing row", init=FALSE, tick.init=100) {
 # default parameter meant to say something meaningful about the loop content
 # Function name potentially conflicts with httr::progress
-                if(init) {
+                if(init | !exists("progress.store")) {
                         progress.store<<-c(counter=0,
                                            ticks=0,
                                            tick=tick.init)
