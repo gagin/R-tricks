@@ -1,21 +1,23 @@
-progress <-
-        function(add="", prefix="Processing row", init=FALSE, tick.init=100) {
-# default parameter meant to say something meaningful about the loop content
-# Function name potentially conflicts with httr::progress
-                if(init | !exists("progress.store")) {
-                        progress.store<<-c(counter=0,
-                                           ticks=0,
-                                           tick=tick.init)
-                }
-                progress.store[1] <<- progress.store[1] + 1
-                if(progress.store[1] == progress.store[3]) {
-                        progress.store[2] <<- progress.store[2] + 1
+# Function to indicate progress in loop
+# Initialiaze before loop with my_progress<-progress()
+# Then call my_progress() in every loop
+progress <- function(tick.step=100) {
+        # Function name potentially conflicts with httr::progress
+        counter <- 0
+        ticks   <- 0
+        tick    <- tick.step
+        function(add="", prefix="Processing row") {
+                # default arg meant to say something meaningful about the loop content        
+                counter <<- counter + 1
+                if(counter == tick) {
+                        ticks <<- ticks + 1
                         if(add != "") add <- paste(":",add)
                         cat(paste0(prefix,
                                    " ",
-                                   progress.store[2]*progress.store[3],
+                                   as.character(ticks*tick),
                                    add,
                                    "\n"))
-                        progress.store[1] <<- 0
+                        counter <<- 0
                 }
         }
+}
