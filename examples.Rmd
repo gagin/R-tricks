@@ -20,6 +20,8 @@ for your system.
 # setwd(file.path(normalizePath("~"),"folder","subfolder"))
 ```
 
+## Storing data
+
 To prevent re-downloads every time when you develop in Rmd with console,
 keep the original dataset in a separate variable and see if it's intact,
 using digest().
@@ -267,4 +269,39 @@ qualify<-function(real,guess){
   bad.ones<-check[1,2]+check[2,1]
   paste0(as.character(round(100*good.ones/(good.ones+bad.ones))),'%')
   }
+```
+
+## Hints I dont' understand yet
+
+From ["Most useful R trick"](http://stackoverflow.com/questions/1295955/what-is-the-most-useful-r-trick)
+discussion on SO.
+
+# Dumping variables to files
+
+dput() converts a variable to R code that will create it. File option will
+write it this way to file. dget() does the reverse.  
+Supposedly this may make understanding object's structure easier.
+Also to helpful for showing your problem in coding discussions.
+```{r}
+str(list(list(1,c=2),list(d=3,a=4,list(5,6,7))))
+dput(list(list(1,c=2),list(d=3,a=4,list(5,6,7))))
+summary(list(list(1,c=2),list(d=3,a=4,list(5,6,7))))
+```
+
+# Parallelization
+
+Revolution R has "foreach" library that allows to do parallel calculations
+with %dopar%, but some background parallelism service is needed.
+TODO: research
+
+```{r}
+#install.packages("foreach")
+library(foreach)
+library(data.table)
+system.time(ppp<-t(t(t(t(matrix(1:100000000,nrow=10000)))))
+
+system.time(
+        foreach(zz=1:100) %do% {ppp<-t(t(t(t(matrix(1:100000000,nrow=10000)))))}
+        )
+THIS IS BROKEN AND INCOMPLETE
 ```
