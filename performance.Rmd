@@ -1,0 +1,84 @@
+---
+title: "Performance notes"
+output: html_document
+---
+
+There could be several ways to do stuff. Which one is faster?
+See [comparison of single value
+assignment](https://github.com/gagin/R-tricks/blob/master/compare-dt-df.R)
+in data.frame, data.table and list. It seems that it's faster to read from
+higher level construct but write to lower level construct.
+
+```{r, include=FALSE}
+library(microbenchmark)
+library(ggplot2)
+library(magrittr)
+library(data.table)
+```
+
+## Strsplit is faster than regexp
+
+```{r}
+cleanup.strsplit <- function(s) {
+        strsplit(x=s, split="oz.) ", fixed=TRUE)[[1]][2]
+}
+
+cleanup.sub <- function(s) {
+        sub("(.+oz\\.\\) )(.+)", "\\2", s)
+}
+
+l <- "(   oz.) tomato paste"
+microbenchmark(
+        cleanup.sub(l),
+        cleanup.strsplit(l),
+        times=100L
+        ) %>%
+        autoplot
+```
+
+## row.names vs rownames
+
+In the experiment below,
+
+* rownames are faster for matrix for both read and write,
+* it doesn't matter for data.table and data.frame, although row.names is a bit
+faster
+
+TODO Check if there are confidence intervals built-in in microbenchmark(),
+and implement, if they aren't
+
+```{r, echo=FALSE}
+m <- matrix(1:10000, ncol=1, nrow=10000, dimnames=list(1:10000))
+m1 <- m
+mb.matrix <- microbenchmark(
+        row.names(m1) <- row.names(m),
+        row.names(m1) <- rownames(m),
+        rownames(m1) <- row.names(m),
+        rownames(m1) <- rownames(m),
+        times = 1000L)     
+autoplot(mb.matrix)
+mb.matrix
+
+df <- data.frame(m)
+df1 <- df
+mb.df<-microbenchmark(
+        row.names(df1) <- row.names(df),
+        row.names(df1) <- rownames(df),
+        rownames(df1) <- row.names(df),
+        rownames(df1) <- rownames(df),
+        times = 1000L)
+autoplot(mb.df)
+mb.df
+
+dt <- data.table(m)
+dt1 <- dt
+mb.dt<-microbenchmark(
+        row.names(dt1) <- row.names(dt),
+        row.names(dt1) <- rownames(dt),
+        rownames(dt1) <- row.names(dt),
+        rownames(dt1) <- rownames(dt),
+        times = 1000L)
+autoplot(mb.dt)
+mb.dt
+```
+
