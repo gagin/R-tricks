@@ -19,19 +19,26 @@ library(data.table)
 ## Strsplit is faster than regexp
 
 ```{r}
-cleanup.strsplit <- function(s) {
+cleanup.strsplit.NA <- function(s) {
+        # This one is broken - it will return NA if the split isn't found
         strsplit(x=s, split="oz.) ", fixed=TRUE)[[1]][2]
+}
+
+cleanup.strsplit <- function(s) {
+        s1 <- strsplit(x=s, split="oz.) ", fixed=TRUE)[[1]][2]
+        if(is.na(s1)) s else s1
 }
 
 cleanup.sub <- function(s) {
         sub("(.+oz\\.\\) )(.+)", "\\2", s)
 }
 
-l <- "(   oz.) tomato paste"
+l <- rep(c("simple","(   oz.) tomato paste"),10)
 microbenchmark(
-        cleanup.sub(l),
-        cleanup.strsplit(l),
-        times=100L
+        lapply(l,cleanup.sub),
+        lapply(l,cleanup.strsplit),
+        lapply(l,cleanup.strsplit.NA),
+        times=1000L
         ) %>%
         autoplot
 ```
@@ -43,6 +50,9 @@ In the experiment below,
 * rownames are faster for matrix for both read and write,
 * it doesn't matter for data.table and data.frame, although row.names is a bit
 faster
+
+Interesingly, there're row.names and rownames, but there's only colnames.
+There's no col.names
 
 TODO Check if there are confidence intervals built-in in microbenchmark(),
 and implement, if they aren't
@@ -82,3 +92,8 @@ autoplot(mb.dt)
 mb.dt
 ```
 
+## Apply vs for loop
+
+Technically, apply function do the same thing as for loops, but if something
+can be organized to be used in apply(), then it's probably more efficient
+as well.
