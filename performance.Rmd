@@ -16,6 +16,41 @@ library(magrittr)
 library(data.table)
 ```
 
+## Is magrittr's two-way pipe syntax good?
+
+Magrittr two way pipe syntax looks convenient, as one doesn't need to
+write a variable name twice if something is applied to it. But I experienced
+it to slow a cycle significantly in a project of mine. Is it slow indeed? What
+about one-way pipe operator, is that one slow as well? Is it different in dplyr,
+if dplyr imports magrittr's namespace?
+
+Seems that pipe is at least 10 times slower than straight assignment (and dplyr
+just reexports magrittr's operator) - and so it can be used between functions
+that handle frames, but not inside of cycles.
+
+```{r}
+m <- matrix(c(1,2,3,4),nrow=2)
+
+library(dplyr, quietly=TRUE, warn.conflicts = FALSE);
+mb.dplyr <- microbenchmark(
+        m <- m %>% t,
+        m <- t(m),
+        times=10000L
+)
+mb.dplyr
+autoplot(mb.dplyr)
+
+library(magrittr, quietly=TRUE);
+mb.magrittr <- microbenchmark(
+        m %<>% t,
+        m <- m %>% t,
+        m <- t(m),
+        times=10000L
+)
+mb.magrittr
+autoplot(mb.magrittr)
+```
+
 ## Strsplit is faster than regexp
 
 ```{r}
