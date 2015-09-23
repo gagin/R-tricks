@@ -51,8 +51,9 @@ df %>% sapply(function(x){sum(is.na(x))})
 
 ## Performance and memory
 
-apply() functions don't improve performance compared to for(), they are just
-more readable.
+Theoretically, apply() functions don't improve performance compared to for(),
+they are just more readable. Practically, there's more to it, see
+[separate review](http://htmlpreview.github.io/?https://github.com/gagin/R-tricks/blob/master/performance.html).
 
 To check object size in memory, use "pryr" package.
 ```{r, eval=FALSE}
@@ -88,6 +89,9 @@ aggr<-function(df,pattern,to)
                                   type))
 
 ```
+
+Vectorized versions of min() and max() are called pmin() and pmax() - they
+call it "parallel" instead of "vectorized".
 
 Single sign logical operators are vectorized, while double sign - not.
 
@@ -225,7 +229,7 @@ bins[]<-lapply(bins,as.numeric)
 
 Prepare trainers
 
-```{r}
+```{r, eval=FALSE}
 nr<-dim(bins)[1] # number of observations
 share<-0.8 # this is our 80% parameter
 set.seed(seed)
@@ -294,7 +298,7 @@ Revolution R has "foreach" library that allows to do parallel calculations
 with %dopar%, but some background parallelism service is needed.
 TODO: research
 
-```{r}
+```{r, eval=FALSE}
 #install.packages("foreach")
 library(foreach)
 library(data.table)
