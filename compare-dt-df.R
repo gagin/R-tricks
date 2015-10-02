@@ -1,3 +1,6 @@
+#####
+# Apparently this was done before I discovered microbenchmark library
+#####
 source("https://raw.githubusercontent.com/gagin/R-tricks/master/progress.R")
 library(data.table)
 library(dplyr)
