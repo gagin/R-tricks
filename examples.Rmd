@@ -53,7 +53,7 @@ Code to parse and plot month-count tables,
 copied as copy-paste from MS SQL Studio (as it's remote desktop to a server
 in other network, DB access from R isn't a simple thing to use; copy-paste
 is simpler).
-```{r}
+```{r, eval=FALSE}
 ## dd<-"copy-paste-here"
 library(data.table)
 library(dplyr)
