@@ -79,5 +79,5 @@ under100 %>% hist(breaks=0:9,
 axis(1, at=0:9,  labels=c("",1:9), hadj=6)
 
 # Well, 1s are now lower but the Benford's law still works. Interestingly, with a smaller debug sample
-# I had 2s and 3s very almost at the same level, which was weird. But on a bigger sample, it all leveled out,
+# I had 2s and 3s almost at the same level, which was weird. But on a bigger sample, it all leveled out,
 # as it should have. Well, except 7s and 8s :)
