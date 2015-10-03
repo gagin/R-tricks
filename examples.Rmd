@@ -53,6 +53,16 @@ Code to parse and plot month-count tables,
 copied as copy-paste from MS SQL Studio (as it's remote desktop to a server
 in other network, DB access from R isn't a simple thing to use; copy-paste
 is simpler).
+
+```{r, eval=FALSE}
+# SQL code to get results to copy
+SELECT dateadd(Month, datediff(MONTH, 0, datefield),0), COUNT(*)
+FROM XXX
+where XXX
+group by dateadd(MONTH, datediff(MONTH, 0, datefield),0)
+order by dateadd(MONTH, datediff(MONTH, 0, datefield),0)
+```
+
 ```{r, eval=FALSE}
 ## dd<-"copy-paste-here"
 library(data.table)
@@ -201,7 +211,7 @@ data.frame(m)
 print(data.frame(m), row.names=FALSE)
 ```
 
-For data types conversion, here's aunction that adds zeroes to numeric records
+For data types conversion, here's function that adds zeroes to numeric records
 like 222 to have 0222 ready for translation to time 02:22
 ```{r, eval=FALSE}
 f<-function(i){
