@@ -92,6 +92,36 @@ working&lt;-loaded</code></pre>
 <h2>Exploration</h2>
 <p>Count NAs in each column of a dataframe df</p>
 <pre class="r"><code>df %&gt;% sapply(function(x){sum(is.na(x))})</code></pre>
+<p>Code to parse and plot month-count tables, copied as copy-paste from MS SQL Studio (as it’s remote desktop to a server in other network, DB access from R isn’t a simple thing to use; copy-paste is simpler).</p>
+<pre class="r"><code># SQL code to get results to copy
+SELECT dateadd(Month, datediff(MONTH, 0, datefield),0), COUNT(*)
+FROM XXX
+where XXX
+group by dateadd(MONTH, datediff(MONTH, 0, datefield),0)
+order by dateadd(MONTH, datediff(MONTH, 0, datefield),0)</code></pre>
+<pre class="r"><code>## dd&lt;-&quot;copy-paste-here&quot;
+library(data.table)
+library(dplyr)
+makeDT &lt;- function(dd)
+        dd %&gt;%
+        strsplit(&quot;\n&quot;) %&gt;%
+        &quot;[[&quot;(1) %&gt;%
+        (function(x)x[2:length(x)]) %&gt;%
+        strsplit(&quot;[ \t]&quot;) %&gt;%
+        as.data.table %&gt;%
+        &quot;[&quot;(c(1,3)) %&gt;% 
+        t %&gt;% 
+        as.data.table %&gt;% 
+        rename(month=V1,count=V2) %&gt;%
+        &quot;[&quot;(,month := as.Date(month)) %&gt;%
+        &quot;[&quot;(,count := as.numeric(count))
+smoothDT &lt;- function(DT)
+        DT %&gt;%
+        ggplot(aes(x=month,y=count, group=1)) + geom_point() + geom_smooth()
+smoothIt &lt;- function(dd) dd %&gt;% makeDT %&gt;% smoothDT
+# or plot with scale
+ggplot(makeDT(dd), aes(x=month,y=count, group=1)) + geom_point() +
+        geom_smooth() + scale_y_continuous(limits=c(0,4200))</code></pre>
 </div>
 <div id="performance-and-memory" class="section level2">
 <h2>Performance and memory</h2>
@@ -109,7 +139,7 @@ for(i in 1:10000) tick()</code></pre>
 <p>Ifelse() is vectorized, while if() is not.</p>
 <pre class="r"><code># Example
 # Function aggr() checks variable &quot;type&quot; in provided dataframe &quot;df&quot;
-# to be already in acceptible values vector &quot;events&quot;, and otherwise
+# to be already in acceptable values vector &quot;events&quot;, and otherwise
 # changes variable to fixed string &quot;to&quot; if &quot;pattern&quot; is found in it
 
 aggr&lt;-function(df,pattern,to)
@@ -186,7 +216,7 @@ m</code></pre>
 <pre><code>##  X1 X2
 ##   1  3
 ##   2  4</code></pre>
-<p>For data types conversion, here’s aunction that adds zeroes to numeric records like 222 to have 0222 ready for translation to time 02:22</p>
+<p>For data types conversion, here’s function that adds zeroes to numeric records like 222 to have 0222 ready for translation to time 02:22</p>
 <pre class="r"><code>f&lt;-function(i){
         i.length&lt;-nchar(as.character(i))
         if(i.length&lt;4){

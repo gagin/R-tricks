@@ -39,7 +39,12 @@ working<-loaded
 ````
 readr::read_csv() and data.table::fread() are faster, and even more faster, leave column names as original (could be done with check.names=FALSE in read.csv), strings not converted to factors (could be done with stringsAsFactors = FALSE in read.csv). But they have problems with files, downloaded with download.file() on Windows, if mode="wb" wasn't used with it.
 
-Remember not to break names when read.csv() by check.names=FALSE
+This is how to fix column names after reading with fread
+```{r}
+setnames(DT,colnames(DT),make.names(colnames(DT)))
+```
+
+If names shouldn't be corrected, use check.names=FALSE with read.csv()
 
 When colnames have to be fixed, use make.names()
 ## Exploration
@@ -54,7 +59,17 @@ Code to parse and plot month-count tables,
 copied as copy-paste from MS SQL Studio (as it's remote desktop to a server
 in other network, DB access from R isn't a simple thing to use; copy-paste
 is simpler).
-```{r}
+
+```{r, eval=FALSE}
+# SQL code to get results to copy
+SELECT dateadd(Month, datediff(MONTH, 0, datefield),0), COUNT(*)
+FROM XXX
+where XXX
+group by dateadd(MONTH, datediff(MONTH, 0, datefield),0)
+order by dateadd(MONTH, datediff(MONTH, 0, datefield),0)
+```
+
+```{r, eval=FALSE}
 ## dd<-"copy-paste-here"
 library(data.table)
 library(dplyr)
@@ -108,7 +123,7 @@ Ifelse() is vectorized, while if() is not.
 ```{r, eval=FALSE}
 # Example
 # Function aggr() checks variable "type" in provided dataframe "df"
-# to be already in acceptible values vector "events", and otherwise
+# to be already in acceptable values vector "events", and otherwise
 # changes variable to fixed string "to" if "pattern" is found in it
 
 aggr<-function(df,pattern,to)
@@ -202,7 +217,7 @@ data.frame(m)
 print(data.frame(m), row.names=FALSE)
 ```
 
-For data types conversion, here's aunction that adds zeroes to numeric records
+For data types conversion, here's function that adds zeroes to numeric records
 like 222 to have 0222 ready for translation to time 02:22
 ```{r, eval=FALSE}
 f<-function(i){
