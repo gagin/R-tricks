@@ -41,6 +41,7 @@ readr::read_csv() and data.table::fread() are faster, and even more faster, leav
 
 Remember not to break names when read.csv() by check.names=FALSE
 
+When colnames have to be fixed, use make.names()
 ## Exploration
 
 Count NAs in each column of a dataframe df
@@ -258,6 +259,7 @@ bins[]<-lapply(bins,as.numeric)
 ```
 
 Prepare trainers
+UPDATE - this actually can be done by caret::createDataPartition()
 
 ```{r, eval=FALSE}
 nr<-dim(bins)[1] # number of observations
@@ -295,6 +297,7 @@ qualify(round(res$net.result),testers$Recommendation)
 ```
 
 Results assessment function
+UPDATE - this actually can be done by caret::confusionMatrix()
 
 ```{r, eval=FALSE}
 qualify<-function(real,guess){
@@ -303,6 +306,17 @@ qualify<-function(real,guess){
   bad.ones<-check[1,2]+check[2,1]
   paste0(as.character(round(100*good.ones/(good.ones+bad.ones))),'%')
   }
+```
+
+How to make a formula of looong list variables - instead of parse eval text=TRUE, I can use this:
+
+
+```{r}
+xyform <- function (y_var, x_vars) {
+        # y_var: a length-one character vector
+        # x_vars: a character vector of object names
+        as.formula(sprintf("%s ~ %s", y_var, paste(x_vars, collapse = " + ")))
+}
 ```
 
 ## Hints I dont' understand yet
