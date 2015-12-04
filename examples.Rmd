@@ -47,6 +47,20 @@ setnames(DT,colnames(DT),make.names(colnames(DT)))
 If names shouldn't be corrected, use check.names=FALSE with read.csv()
 
 When colnames have to be fixed, use make.names()
+
+This is a function to drop file extention (from name string)
+
+```{r, eval=FALSE}
+dropExtension <- function(filename) {
+        filename %>%
+                basename %>%
+                strsplit("\\.", fixed=FALSE) %>%
+                "[["(1) %>%
+                "["(-length(.)) %>%
+                paste(collapse=".")
+        }
+```
+
 ## Exploration
 
 Count NAs in each column of a dataframe df
