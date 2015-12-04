@@ -52,12 +52,15 @@ This is a function to drop file extention (from name string)
 
 ```{r, eval=FALSE}
 dropExtension <- function(filename) {
-        filename %>%
-                basename %>%
-                strsplit("\\.", fixed=FALSE) %>%
-                "[["(1) %>%
-                "["(-length(.)) %>%
-                paste(collapse=".")
+#        filename %>%
+#                basename %>%
+#                strsplit("\\.", fixed=FALSE) %>%
+#                "[["(1) %>%
+#                "["(-length(.)) %>%
+#                paste(collapse=".")
+# That was slower, this one is faster
+sub(".[[:alnum:]]+$", "", filename, fixed=FALSE)
+# It doesn't seem to matter if dot is escaped with two backslashes, strangely
         }
 ```
 
